@@ -1,0 +1,7 @@
+---
+- name: Configure the k3s node
+  hosts: k3s
+  become: true
+  roles:
+    - base
+    - k3s

@@ -1,0 +1,2 @@
+[k3s]
+gitops-k3s ansible_host=<SSH_CONFIG_ALIAS_OR_IP>
