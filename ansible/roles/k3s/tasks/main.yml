@@ -1,0 +1,23 @@
+---
+- name: Check if k3s is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_bin
+
+# --tls-san lets kubectl on your laptop trust the server's public IP
+# Traefik and servicelb are disabled to save RAM (we use NodePorts instead)
+- name: Install k3s
+  ansible.builtin.shell: |
+    curl -sfL https://get.k3s.io | \
+    INSTALL_K3S_EXEC="server --write-kubeconfig-mode 644 --tls-san {{ ansible_host }} --disable traefik --disable servicelb" sh -
+  args:
+    executable: /bin/bash
+  when: not k3s_bin.stat.exists
+
+- name: Wait until the node is Ready
+  ansible.builtin.command: k3s kubectl get nodes
+  register: k3s_nodes
+  until: "' Ready' in k3s_nodes.stdout"
+  retries: 20
+  delay: 10
+  changed_when: false
