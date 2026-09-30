@@ -5,3 +5,5 @@
 crash.log
 *.pem
 *.key
+ansible/inventory.ini
+*.retry

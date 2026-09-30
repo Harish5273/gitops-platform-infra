@@ -1,0 +1,50 @@
+---
+# Swap file so k3s + ArgoCD + Prometheus fit in 1 GB RAM
+- name: Create swap file (only if missing)
+  ansible.builtin.command: fallocate -l 2G /swapfile
+  args:
+    creates: /swapfile
+  register: swap_created
+
+- name: Set swap file permissions
+  ansible.builtin.file:
+    path: /swapfile
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Format swap file
+  ansible.builtin.command: mkswap /swapfile
+  when: swap_created.changed
+
+- name: Enable swap
+  ansible.builtin.command: swapon /swapfile
+  when: swap_created.changed
+
+- name: Persist swap in /etc/fstab
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    line: "/swapfile none swap sw 0 0"
+    state: present
+
+- name: Set swappiness to 10
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/99-swappiness.conf
+    content: "vm.swappiness=10\n"
+    mode: "0644"
+  register: swappiness
+
+- name: Apply swappiness now
+  ansible.builtin.command: sysctl -p /etc/sysctl.d/99-swappiness.conf
+  when: swappiness.changed
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name: [curl, git, jq, unzip, htop]
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: gitops-k3s
