@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-html
+data:
+  index.html: |
+    <html>
+      <head><title>GitOps Platform Demo</title></head>
+      <body style="font-family: sans-serif; text-align:center; margin-top:80px;">
+        <h1>{{ .Values.message }}</h1>
+        <p>Chart: {{ .Chart.Name }} v{{ .Chart.Version }}</p>
+        <p>Release: {{ .Release.Name }}</p>
+      </body>
+    </html>

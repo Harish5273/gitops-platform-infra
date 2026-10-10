@@ -104,15 +104,6 @@ resource "aws_security_group" "k3s" {
   tags = { Name = "${var.project_name}-sg" }
 }
 
-# SSH: log in to the server
-resource "aws_vpc_security_group_ingress_rule" "ssh" {
-  security_group_id = aws_security_group.k3s.id
-  description       = "SSH"
-  cidr_ipv4         = var.my_ip_cidr
-  ip_protocol       = "tcp"
-  from_port         = 22
-  to_port           = 22
-}
 
 # HTTP: reach web apps on port 80
 resource "aws_vpc_security_group_ingress_rule" "http" {
