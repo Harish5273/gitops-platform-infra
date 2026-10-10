@@ -1,0 +1,3 @@
+Demo app deployed.
+Check pods:  kubectl get pods -l app={{ .Release.Name }}
+NodePort:    {{ .Values.service.nodePort }}

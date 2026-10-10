@@ -1,0 +1,34 @@
+---
+- name: Check if Helm is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/helm
+  register: helm_bin
+
+- name: Download and install Helm (official script)
+  ansible.builtin.shell: |
+    curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    chmod +x /tmp/get_helm.sh
+    /tmp/get_helm.sh
+  args:
+    executable: /bin/bash
+  when: not helm_bin.stat.exists
+
+- name: Verify Helm version
+  ansible.builtin.command: helm version --short
+  register: helm_version
+  changed_when: false
+
+- name: Show Helm version
+  ansible.builtin.debug:
+    var: helm_version.stdout
+
+# k3s already writes a world-readable kubeconfig (write-kubeconfig-mode 644
+# was set during install), so kubectl/helm work without sudo once KUBECONFIG
+# is set. This makes it available for the ubuntu user's shell sessions.
+- name: Point KUBECONFIG at the k3s config for the ubuntu user
+  ansible.builtin.lineinfile:
+    path: /home/ubuntu/.bashrc
+    line: "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml"
+    create: true
+    owner: ubuntu
+    group: ubuntu
