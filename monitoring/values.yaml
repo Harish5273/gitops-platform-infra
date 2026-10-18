@@ -1,0 +1,40 @@
+# Minimal kube-prometheus-stack for a small k3s node (no Grafana, no Alertmanager)
+alertmanager:
+  enabled: false
+grafana:
+  enabled: false
+
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeEtcd:
+  enabled: false
+
+prometheusOperator:
+  resources:
+    requests: {cpu: 20m, memory: 40Mi}
+    limits: {memory: 100Mi}
+
+prometheus:
+  service:
+    type: NodePort
+    nodePort: 30900
+  prometheusSpec:
+    retention: 6h
+    serviceMonitorSelectorNilUsesHelmValues: false
+    resources:
+      requests: {cpu: 100m, memory: 200Mi}
+      limits: {memory: 320Mi}
+
+kube-state-metrics:
+  resources:
+    requests: {cpu: 10m, memory: 25Mi}
+    limits: {memory: 60Mi}
+
+prometheus-node-exporter:
+  resources:
+    requests: {cpu: 10m, memory: 12Mi}
+    limits: {memory: 30Mi}
