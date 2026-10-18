@@ -17,7 +17,6 @@ flowchart LR
     subgraph EC2[EC2 instance - k3s]
         Argo
         Pods
-        Prom[Prometheus]
     end
 
     CW[CloudWatch alarm] -->|ALARM| SNS[SNS topic]
@@ -37,7 +36,6 @@ flowchart LR
 | `ecr.tf` | ECR Public repository and the GitHub OIDC role (no stored AWS keys) |
 | `selfheal.tf`, `lambda/handler.py` | CloudWatch alarm, SNS topic, Lambda that reboots the instance |
 | `ansible/` | Roles that configure the server: swap, base packages, k3s, Helm |
-| `monitoring/` | Trimmed kube-prometheus-stack values |
 
 Related repos:
 - `demo-app-source`: Dockerfile and the GitHub Actions workflow
@@ -69,7 +67,7 @@ Limits of that last test: forcing the alarm state proves the alarm, SNS, Lambda,
 
 ## Cost
 
-Lambda, SNS email, CloudWatch alarms, and ECR Public are within AWS free allowances. The full stack (k3s, ArgoCD, Prometheus) needs more memory than a t3.micro has, so it was built and demonstrated on a t3.small, which is not Free Tier. The instance runs only during work sessions and is stopped in between. A billing alert is set.
+Lambda, SNS email, CloudWatch alarms, and ECR Public are within AWS free allowances. The full stack (k3s, ArgoCD) needs more memory than a t3.micro has, so it was built and demonstrated on a t3.small, which is not Free Tier. The instance runs only during work sessions and is stopped in between. A billing alert is set.
 
 ## Quick start
 
@@ -89,7 +87,7 @@ Then register the ArgoCD Application from the manifests repo.
 
 ## Next steps
 
-- Grafana dashboards on top of the existing Prometheus
+- Add Prometheus and Grafana monitoring
 - A second alarm for real failure conditions, such as sustained high CPU
 - Move Terraform state to a remote S3 backend with locking
 - Add terraform fmt and validate checks to pull requests
